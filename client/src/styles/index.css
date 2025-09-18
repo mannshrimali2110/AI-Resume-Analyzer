@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========
+   THEME (Dark • 60:30:10)
+   60% — Surfaces / Background
+   30% — Muted / Secondary
+   10% — Accent
+===========*/
+:root {
+  /* Core palette */
+  --bg: #0b0f19;
+  /* page background (60) */
+  --surface: #111827;
+  /* cards / panels */
+  --surface-2: #0f1629;
+  /* alt panels / hero */
+  --muted: #1f2937;
+  /* lines / chips (30) */
+
+  --accent: #7c3aed;
+  /* primary accent (10) — violet */
+  --accent-2: #06b6d4;
+  /* supporting accent — cyan */
+
+  /* Text */
+  --text-primary: #e5e7eb;
+  /* 300→200 */
+  --text-secondary: #9ca3af;
+  /* 500 */
+
+  /* States */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  /* Layout rhythm */
+  --radius: 1.25rem;
+  /* 20px */
+  --radius-sm: .875rem;
+  --pad: 1rem;
+  --pad-lg: 1.5rem;
+
+  /* Effects */
+  --ring: 0 0 0 2px var(--accent) inset;
+  --shadow-soft: 0 8px 30px rgba(0, 0, 0, .35);
+  --shadow-card: 0 10px 40px rgba(0, 0, 0, .45);
+}
+
+/* Base */
+@layer base {
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text-primary);
+  }
+
+  /* Lenis prep */
+  html {
+    scroll-behavior: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto;
+  }
+}
+
+/* Reusable UI tokens */
+@layer components {
+  .container-page {
+    @apply min-h-screen w-full mx-auto px-5 md:px-8;
+  }
+
+  .hero {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(124, 58, 237, 0.18), transparent 60%),
+      radial-gradient(800px 400px at 90% 0%, rgba(6, 182, 212, 0.16), transparent 60%),
+      var(--surface-2);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .02), rgba(255, 255, 255, 0));
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: var(--shadow-card);
+  }
+
+  .panel {
+    @apply card p-5 md:p-6;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl font-medium transition px-5 py-3 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    color: white;
+    background: linear-gradient(135deg, var(--accent), #5b21b6);
+    box-shadow: 0 10px 30px rgba(124, 58, 237, .35);
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.05);
+  }
+
+  .btn-ghost {
+    @apply text-[var(--text-secondary)];
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .kicker {
+    @apply uppercase tracking-wide text-xs md:text-sm text-[var(--text-secondary)];
+  }
+
+  .h1 {
+    @apply text-3xl md:text-5xl font-extrabold leading-tight;
+  }
+
+  .h2 {
+    @apply text-2xl md:text-3xl font-bold;
+  }
+
+  .h3 {
+    @apply text-lg md:text-xl font-semibold;
+  }
+
+  .subtle {
+    @apply text-[var(--text-secondary)];
+  }
+
+  .divider {
+    @apply border-t;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .chip {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .input-surface {
+    @apply w-full rounded-xl px-4 py-3 outline-none;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+  }
+}
+
+/* Optional: focus ring helper */
+:where(.ring-accent:focus-visible) {
+  box-shadow: var(--ring);
+}
