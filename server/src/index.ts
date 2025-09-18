@@ -4,7 +4,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import path from 'path';
 import dotenv from 'dotenv';
-import { errorHandler } from './middleware/errors';
+import { errorHandler } from './middleware/errors.middleware';
 import healthRouter from './routes/health';
 import uploadRouter from './routes/upload';
 import analyzeRouter from './routes/analyze';
