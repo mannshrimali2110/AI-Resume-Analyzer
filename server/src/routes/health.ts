@@ -1,9 +1,24 @@
-import { Router } from 'express';
+import { Router, Request, Response } from "express";
 
-const router = Router();
+/**
+ * Configure system health check routes.
+ *
+ * @returns Express router instance for health routes.
+ */
+function create_health_routes(): Router {
+  const router = Router();
 
-router.get('/', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime() });
-});
+  /**
+   * Health check endpoint.
+   * Endpoint: GET /api/health
+   */
+  router.get("/", (request: Request, response: Response) => {
+    return response.json({
+      status: "ok"
+    });
+  });
 
-export default router;
+  return router;
+}
+
+export default create_health_routes();

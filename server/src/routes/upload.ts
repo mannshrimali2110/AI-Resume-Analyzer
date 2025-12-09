@@ -1,10 +1,27 @@
-// src/routes/upload.ts
 import { Router } from "express";
+
+import { UploadController } from "../controllers/upload.controller";
 import { uploadResumeMiddleware } from "../middleware/upload.middleware";
-import { handleResumeUpload } from "../controllers/upload.controller";
 
-const router = Router();
+/**
+ * Configure routes for resume upload and processing.
+ *
+ * @returns Express router instance for upload routes.
+ */
+function create_upload_routes(): Router {
+    const router = Router();
 
-router.post("/resume", uploadResumeMiddleware.single("resume"), handleResumeUpload);
+    /**
+     * Handle resume upload and text extraction.
+     * Endpoint: POST /api/upload/resume
+     */
+    router.post(
+        "/resume",
+        uploadResumeMiddleware.single("resume"),
+        UploadController.upload_resume
+    );
 
-export default router;
+    return router;
+}
+
+export default create_upload_routes();

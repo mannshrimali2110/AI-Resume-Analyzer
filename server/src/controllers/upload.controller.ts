@@ -1,47 +1,58 @@
-// src/controllers/upload.controller.ts
-import { Request, Response } from "express";
-import fs from "fs/promises";
-import { extractResumeText } from "../utils/extractResume";
+import { Request, Response, NextFunction } from "express";
 
-export const handleResumeUpload = async (req: Request, res: Response) => {
-    console.log("Upload request received");
+import { IResumeService } from "../services/resume/iresume_service";
+import { ResumeService } from "../services/resume/resume_service";
 
-    try {
-        if (!req.file) {
-            return res
-                .status(400)
-                .json({ success: false, message: "No file uploaded" });
-        }
+/**
+ * Controller responsible for handling resume upload and processing requests.
+ * This controller delegates the full resume processing pipeline (parse + clean)
+ * to a high-level resume service.
+ */
+export class UploadController {
+    private static resume_service: IResumeService = new ResumeService();
 
-        const filePath = req.file.path;
-
-        let text = "";
+    /**
+     * Handle resume upload and full processing workflow.
+     *
+     * @param request - Express request containing the uploaded resume file.
+     * @param response - Express response object for sending processed text.
+     * @param next - Express next middleware function.
+     * @returns A JSON response with processed resume text.
+     */
+    public static async upload_resume(
+        request: Request,
+        response: Response,
+        next: NextFunction
+    ): Promise<Response | void> {
         try {
-            text = await extractResumeText(filePath);
-        } catch (err: any) {
-            console.error("Extraction error:", err);
-            try {
-                await fs.unlink(filePath); // cleanup temp file
-            } catch (_) { }
-            return res.status(500).json({
+            if (!request.file || !request.file.path) {
+                return response.status(400).json({
+                    success: false,
+                    message: "No resume file uploaded."
+                });
+            }
+
+            const file_path: string = request.file.path;
+
+            const processed_text: string =
+                await UploadController.resume_service.process_resume(file_path);
+
+            return response.json({
+                success: true,
+                text: processed_text
+            });
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                return response.status(500).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return response.status(500).json({
                 success: false,
-                message: "Failed to extract text from the uploaded file.",
+                message: "Unexpected error occurred while processing the uploaded resume."
             });
         }
-
-        // Always cleanup uploaded file after extraction
-        try {
-            await fs.unlink(filePath);
-        } catch (err) {
-            console.warn("Failed to delete uploaded file:", filePath, err);
-        }
-
-        return res.json({ success: true, text });
-    } catch (err: any) {
-        console.error("Upload controller error:", err);
-        return res.status(500).json({
-            success: false,
-            message: err.message || "Internal Server Error",
-        });
     }
-};
+}

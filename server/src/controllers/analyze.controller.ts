@@ -1,91 +1,63 @@
-// src/controllers/analyze.controller.ts
 import { Request, Response, NextFunction } from "express";
-import { analyzeResumeGemini } from "../services/gemini";
-import { z } from "zod";
-import { v4 as uuidv4 } from "uuid";
 
-// Simple in-memory job store. For production use a persistent queue/store.
-type JobState =
-    | { status: "pending" }
-    | { status: "done"; result: any }
-    | { status: "error"; error: any };
+import { IAIService } from "../services/ai/iai_service";
+import { GeminiAIService } from "../services/ai/gemini_ai_service";
+import logger from "../utils/logger";
 
-const jobs = new Map<string, JobState>();
+/**
+ * Controller responsible for handling resume analysis requests.
+ * This controller delegates AI processing to an injected AI service
+ * that follows the IAIService interface.
+ */
+export class AnalyzeController {
+    private static ai_service: IAIService = new GeminiAIService();
 
-const AnalyzeSchema = z.object({
-    resumeText: z.string().min(200),
-    jdText: z.string().min(100),
-    options: z
-        .object({
-            maxSuggestions: z.number().optional(),
-            tone: z.enum(["concise", "detailed"]).optional(),
-        })
-        .optional(),
-});
+    /**
+     * Handle resume analysis requests.
+     *
+     * @param request - Express request object containing resume and job description text.
+     * @param response - Express response object for sending analysis results.
+     * @param next - Express next middleware function.
+     * @returns A JSON response containing AI analysis results.
+     */
+    public static async analyze_resume(
+        request: Request,
+        response: Response,
+        next: NextFunction
+    ): Promise<Response | void> {
+        try {
+            console.log("[AnalyzeController] Received analysis request");
+            const resume_text: string = request.body.resumeText;
+            const job_description_text: string = request.body.jdText;
+            const options: Record<string, unknown> | undefined = request.body.options;
 
-// Create job: returns 202 with jobId and processes AI call in background.
-export const createAnalyzeJob = async (req: Request, res: Response, next: NextFunction) => {
-    console.log("Create analyze job request received");
+            console.log("[AnalyzeController] Input validated, calling AI service");
+            const analysis_result = await AnalyzeController.ai_service.analyze_resume(
+                resume_text,
+                job_description_text,
+                options
+            );
 
-    try {
-        const body = AnalyzeSchema.parse(req.body);
-        const jobId = uuidv4();
-        jobs.set(jobId, { status: "pending" });
-
-        // Process in background
-        (async () => {
-            try {
-                const result = await analyzeResumeGemini(body.resumeText, body.jdText, body.options);
-                jobs.set(jobId, { status: "done", result });
-            } catch (err: any) {
-                console.error("Job processing error:", err?.message || err, err?.details || "");
-                // capture structured error information
-                const payload = {
-                    message: err?.message || "AI service unavailable",
-                    details: err?.details || undefined,
-                };
-                jobs.set(jobId, { status: "error", error: payload });
+            console.log("[AnalyzeController] Returning analysis result");
+            return response.json({
+                success: true,
+                ...analysis_result
+            });
+        } catch (error: unknown) {
+            console.error("[AnalyzeController] Error:", error);
+            logger.error({ error }, "Error during resume analysis");
+            
+            if (error instanceof Error) {
+                return response.status(500).json({
+                    success: false,
+                    message: error.message
+                });
             }
-        })();
 
-        return res.status(202).json({ success: true, jobId });
-    } catch (err: any) {
-        if (err.name === "ZodError") {
-            return res.status(400).json({ success: false, message: "Invalid input.", details: err.errors });
+            return response.status(500).json({
+                success: false,
+                message: "Unexpected error occurred during resume analysis."
+            });
         }
-        next(err);
     }
-};
-
-// Get job status/result
-export const getAnalyzeJob = async (req: Request, res: Response, next: NextFunction) => {
-    const id = req.params.id;
-    if (!id) return res.status(400).json({ success: false, message: "Missing job id" });
-
-    const job = jobs.get(id);
-    if (!job) return res.status(404).json({ success: false, message: "Job not found" });
-
-    if (job.status === "pending") return res.json({ success: true, status: "pending" });
-    if (job.status === "done") return res.json({ success: true, status: "done", result: job.result });
-    return res.status(502).json({ success: false, status: "error", error: job.error });
-};
-
-// Backwards-compatible synchronous analyze (kept for tests / direct calls)
-export const analyzeResume = async (req: Request, res: Response, next: NextFunction) => {
-    console.log("Analyze request received (sync)");
-    await new Promise((r) => setTimeout(r, 100 + Math.random() * 200));
-
-    try {
-        const body = AnalyzeSchema.parse(req.body);
-        const result = await analyzeResumeGemini(body.resumeText, body.jdText, body.options);
-        res.json({ success: true, ...result });
-    } catch (err: any) {
-        if (err.name === "ZodError") {
-            return res.status(400).json({ success: false, message: "Invalid input.", details: err.errors });
-        }
-        if (err.code === "AI_ERROR") {
-            return res.status(502).json({ success: false, message: "AI service unavailable. Please retry.", details: err.details });
-        }
-        next(err);
-    }
-};
+}

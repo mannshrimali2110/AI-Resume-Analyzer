@@ -1,18 +1,27 @@
-// src/routes/analyze.ts
 import { Router } from "express";
-import { aiRateLimiter, jobPollRateLimiter } from "../middleware/rateLimit.middleware";
-import { createAnalyzeJob, getAnalyzeJob, analyzeResume } from "../controllers/analyze.controller";
 
-const router = Router();
+import { AnalyzeController } from "../controllers/analyze.controller";
+import { aiRateLimiter } from "../middleware/rateLimit.middleware";
 
-// Create an asynchronous job for analysis
+/**
+ * Configure routes for resume analysis.
+ *
+ * @returns Express router instance for analyze routes.
+ */
+function create_analyze_routes(): Router {
+    const router = Router();
 
-// Create job (rate limited)
-router.post("/", aiRateLimiter, createAnalyzeJob);
-// Poll job status/result (higher limit for polling)
-router.get("/:id", jobPollRateLimiter, getAnalyzeJob);
+    /**
+     * Handle resume analysis using AI.
+     * Endpoint: POST /api/analyze
+     */
+    router.post(
+        "/",
+        aiRateLimiter,
+        AnalyzeController.analyze_resume
+    );
 
-// Legacy synchronous endpoint (kept but not used by default)
-router.post("/sync", aiRateLimiter, analyzeResume);
+    return router;
+}
 
-export default router;
+export default create_analyze_routes();
