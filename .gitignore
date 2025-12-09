@@ -5,11 +5,16 @@ node_modules/
 dist/
 build/
 
+# Temporary files
+tmp/
+uploads/
+
 # Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
 
 # Environment variables
 .env
