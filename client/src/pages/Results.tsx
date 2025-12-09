@@ -34,7 +34,7 @@ const Results: React.FC = () => {
     .map(([term]) => term);
 
   const formattedSuggestions = (result.improvementSuggestions || []).map(
-    (s: string) => ({ action: s, example: "", impact: "med" as const })
+    (s: any) => ({ action: typeof s === "string" ? s : s.action, example: s.example || "", impact: s.impact || ("med" as const) })
   );
 
   return (

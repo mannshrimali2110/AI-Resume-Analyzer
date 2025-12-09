@@ -112,7 +112,7 @@ const KeywordsList: React.FC<KeywordsListProps> = ({
             transition={{ duration: 0.3 }}
             className="absolute bottom-[-2.5rem] left-0 px-4 py-2 rounded-lg bg-[var(--secondary)] text-[var(--success)] shadow-lg"
           >
-            ✅ Copied to clipboard
+           Copied to clipboard
           </motion.div>
         )}
       </AnimatePresence>
