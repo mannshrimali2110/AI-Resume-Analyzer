@@ -13,7 +13,8 @@ interface SuggestionsListProps {
 
 const impactColors: Record<Suggestion["impact"], string> = {
   high: "text-[var(--danger)] border-[rgba(239,68,68,0.3)]",
-  med: "text-[var(--accent)] border-[rgba(124,58,237,0.3)]",
+  // Use supporting accent (cyan) for medium impact instead of the purple primary accent
+  med: "text-[var(--accent-2)] border-[rgba(6,182,212,0.3)]",
   low: "text-[var(--text-secondary)] border-[rgba(255,255,255,0.08)]",
 };
 
@@ -45,7 +46,7 @@ const SuggestionsList: React.FC<SuggestionsListProps> = ({ suggestions }) => {
                 className={`chip uppercase text-xs ${s.impact === "high"
                     ? "text-[var(--danger)]"
                     : s.impact === "med"
-                      ? "text-[var(--accent)]"
+                      ? "text-[var(--accent-2)]"
                       : "text-[var(--text-secondary)]"
                   }`}
               >

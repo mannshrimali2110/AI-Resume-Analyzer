@@ -31,7 +31,7 @@ const Results: React.FC = () => {
   const keywordCoverage = result.keywordCoverage || {};
   const foundKeywords = Object.entries(keywordCoverage)
     .filter(([_, v]) => v?.present)
-    .map(([term]) => ({ term }));
+    .map(([term]) => term);
 
   const formattedSuggestions = (result.improvementSuggestions || []).map(
     (s: string) => ({ action: s, example: "", impact: "med" as const })
@@ -43,6 +43,22 @@ const Results: React.FC = () => {
         <div className="kicker">Results</div>
         <h2 className="h2 mt-2">Analysis Summary</h2>
         <p className="subtle mt-2">Your AI-powered feedback is organized into clear sections below.</p>
+      </div>
+
+      {/* Top summary cards to improve scannability */}
+      <div className="mb-6 max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="panel flex flex-col items-center justify-center p-4 shadow-lg ring-1 ring-white/6">
+          <div className="text-sm subtle">Overall Match</div>
+          <div className="mt-2 text-3xl font-semibold">{result.matchScore ?? 0}%</div>
+        </div>
+        <div className="panel flex flex-col items-center justify-center p-4 shadow-lg ring-1 ring-white/6">
+          <div className="text-sm subtle">Missing Keywords</div>
+          <div className="mt-2 text-2xl font-semibold">{(result.missingKeywords || []).length}</div>
+        </div>
+        <div className="panel flex flex-col items-center justify-center p-4 shadow-lg ring-1 ring-white/6">
+          <div className="text-sm subtle">Suggestions</div>
+          <div className="mt-2 text-2xl font-semibold">{(result.improvementSuggestions || []).length}</div>
+        </div>
       </div>
 
       <div className="w-full max-w-6xl space-y-6 mx-auto">
@@ -85,7 +101,10 @@ const Results: React.FC = () => {
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .45, delay: .03 }}
         >
           <div className="h3 mb-2">Keyword Analysis</div>
-          <KeywordsList missingKeywords={result.missingKeywords || []} foundKeywords={foundKeywords} />
+          <KeywordsList
+            missingKeywords={(result.missingKeywords || []).map((m: any) => (typeof m === "string" ? m : m.term))}
+            foundKeywords={foundKeywords}
+          />
         </motion.div>
 
         {/* Section Feedback */}

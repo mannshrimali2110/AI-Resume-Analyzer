@@ -4,8 +4,7 @@
   "workspaces": ["client", "server"],
   "scripts": {
     "dev": "concurrently \"npm:start --prefix server\" \"npm:start --prefix client\"",
-    "start": "npm run dev",
-    "test": "concurrently \"npm:test --prefix server\" \"npm:test --prefix client\""
+    "start": "npm run dev"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

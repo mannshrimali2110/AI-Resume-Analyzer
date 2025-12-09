@@ -134,6 +134,55 @@
     @apply text-lg md:text-xl font-semibold;
   }
 
+  /* Glowing background — scoped to the "How it works" section only
+     This ensures the hero and other headings are unaffected. */
+  /* HOW IT WORKS — heading box + outline glow (purple by default) */
+  #how-it-works .h3,
+  #how-it-works .glow-heading {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    /* wrap the glow tightly around the heading text */
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    /* faint translucent background to read against the panel */
+    background: linear-gradient(180deg, rgba(124, 58, 237, 0.06), rgba(124, 58, 237, 0.03));
+    color: var(--text-primary);
+    /* subtle inner shadow so the glow feels elevated */
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+    text-shadow: 0 0 6px rgba(124, 58, 237, 0.18);
+  }
+
+  /* Outer glowing halo using a pseudo-element (outline-like) */
+  #how-it-works .h3::after,
+  #how-it-works .glow-heading::after {
+    content: "";
+    position: absolute;
+    left: -10px;
+    right: -10px;
+    top: -8px;
+    bottom: -8px;
+    z-index: -1;
+    border-radius: 0.6rem;
+    pointer-events: none;
+    /* Purple halo by default */
+    background: radial-gradient(closest-side, rgba(124, 58, 237, 0.36), rgba(124, 58, 237, 0.12) 40%, transparent 60%);
+    filter: blur(12px);
+    opacity: 1;
+  }
+
+  /* Optional cyan variant when you prefer cyan instead of purple */
+  #how-it-works .glow-cyan,
+  #how-it-works .glow-cyan::after {
+    background: none;
+    /* make base background transparent for the element */
+  }
+
+  #how-it-works .glow-cyan::after {
+    background: radial-gradient(closest-side, rgba(6, 182, 212, 0.36), rgba(6, 182, 212, 0.12) 40%, transparent 60%);
+    text-shadow: 0 0 6px rgba(6, 182, 212, 0.18);
+  }
+
   .subtle {
     @apply text-[var(--text-secondary)];
   }

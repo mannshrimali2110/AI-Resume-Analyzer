@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { useAnalysisResult } from "../hooks/useAnalysisResult";
 import { useAnalyze } from "../hooks/useAnalyze";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 import Lenis from "lenis";
 
 import FileDrop from "../components/FileDrop";
 import TextArea from "../components/TextArea";
 import LoadingOverlay from "../components/LoadingOverlay";
-import ErrorBanner from "../components/ErrorBanner";
 
 const Analyzer: React.FC = () => {
   const [resumeText, setResumeText] = useState("");
@@ -28,12 +28,45 @@ const Analyzer: React.FC = () => {
   }, []);
 
   const handleAnalyze = async () => {
+  // clear any previous errors (dismiss any existing toast)
+  toast.dismiss();
+
     try {
       const data = await analyzeMutation.mutateAsync({ resumeText, jdText });
       saveResult(data);
       navigate("/results");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Analysis failed:", error);
+      // Build a friendly message
+      let msg = "Analysis failed. Please try again.";
+
+      // Axios error with response
+      if (error?.response) {
+        const status = error.response.status;
+        const data = error.response.data;
+
+        if (status === 429) {
+          // Try to extract retry time from headers or message
+          const ra = error.response.headers?.["retry-after"] || error.response.headers?.["Retry-After"];
+          if (ra) {
+            msg = `Rate limit exceeded. Please wait ${ra}s and try again.`;
+          } else if (data?.message) {
+            // some responses include a suggested retry time in the message
+            msg = `Rate limit exceeded. ${data.message}`;
+          } else {
+            msg = "Rate limit exceeded. Please wait a moment and try again.";
+          }
+        } else if (data?.message) {
+          msg = data.message;
+        } else {
+          msg = `Request failed with status ${status}`;
+        }
+      } else if (error?.message) {
+        msg = error.message;
+      }
+
+      // show transient toast (6s)
+      toast.error(msg, { duration: 6000, position: "top-center" });
     }
   };
 
@@ -129,7 +162,7 @@ const Analyzer: React.FC = () => {
 
       {/* System helpers */}
       <LoadingOverlay show={analyzeMutation.isPending} />
-      <ErrorBanner message={analyzeMutation.error?.message || null} />
+      {/* react-hot-toast Toaster is mounted globally in main.tsx; toasts are triggered in code */}
     </div>
   );
 };
