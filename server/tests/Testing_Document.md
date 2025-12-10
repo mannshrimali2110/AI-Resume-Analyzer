@@ -148,12 +148,6 @@ Validated:
 * Missing file validation
 * Invalid file type rejection
 
-Screenshot Placeholder:
-
-```
-[INSERT SCREENSHOT: Upload API integration tests passing]
-```
-
 ---
 
 ### **7.2 Analyze API**
@@ -166,11 +160,6 @@ Validated:
 * AI service failure handling
 * Rate limit exhaustion handling
 
-Screenshot Placeholder:
-
-```
-[INSERT SCREENSHOT: Analyze API integration tests passing]
-```
 
 ---
 
@@ -181,11 +170,6 @@ Validated:
 * Server health check
 * Unsupported method rejection
 
-Screenshot Placeholder:
-
-```
-[INSERT SCREENSHOT: Health API integration tests passing]
-```
 
 ---
 
@@ -205,11 +189,7 @@ npm run test
 4. Environment resets between test suites.
 5. Final pass/fail summary generated.
 
-Screenshot Placeholder:
 
-```
-[INSERT SCREENSHOT: Full Jest execution output]
-```
 
 ---
 

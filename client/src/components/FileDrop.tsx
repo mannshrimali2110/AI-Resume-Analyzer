@@ -45,7 +45,7 @@ export default function FileDrop({ onExtracted }: FileDropProps) {
         }
 
         onExtracted(data.text);
-        setSuccess("File uploaded & parsed successfully ✅");
+        setSuccess("File uploaded & parsed successfully !");
       } catch (err: any) {
         setError(
           err?.response?.data?.message ??
